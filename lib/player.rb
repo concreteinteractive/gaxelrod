@@ -3,7 +3,7 @@ require 'selector'
 
 class Player
 
-  attr_reader :score, :history
+  attr_reader :score, :history, :history_length
   attr_accessor :chromosome, :x, :y
 
   REWARD = 3
@@ -12,10 +12,11 @@ class Player
   PUNISHMENT = 1
 
   # Creates a player with a random chromosome and a random location.
-  def initialize
+  def initialize(history_length)
     @chromosome = []
     @history = []
     @score = 0
+    @history_length = history_length
     @x = 0
     @y = 0
   end
@@ -23,7 +24,7 @@ class Player
   class << self
 
     def create(history_length)
-      p = Player.new
+      p = Player.new(history_length)
       p.chromosome = Chromosome.new(history_length)
       p.x = rand
       p.y = rand
@@ -32,12 +33,19 @@ class Player
     end
 
     def reproduce_from(player1, player2, chromosome_first_half, chromosome_second_half)
-      p = Player.new
-      p.x = (player1.x + player2.x) / 2
-      p.y = (player1.y + player2.y) / 2
-      lattice.instance.add(p)
-      p.chromosome = Chromosome.create_from()
+      child = Player.new(@history_length)
+      child.chromosome = Chromosome.create_from(@history_length, chromosome_first_half, chromosome_second_half)
+      Lattice.instance.add_between(child, player1,player2)
+      child
     end
+  end
+
+  # Selects a partner from population with a probability
+  # based on the distance to this player: the nearer, the more probable.
+  def get_partner_from(candidates)
+    distances = Lattice.instance.distances_between(self, candidates)
+    selected_index = Selector.select(distances)
+    candidates[selected_index]
   end
 
   def play_with(other_player)
@@ -45,15 +53,6 @@ class Player
     other_action = other_player.decide(other_player.history, @history)
     self.update(self_action, other_action)
     other_player.update(other_action, self_action)
-  end
-
-  # Selects one player from players with a probability based on the distance
-  # to the players.
-  def get_mate_from(players)
-    distances = []
-    players.each_index {|i| distances << Lattice.instance.distance_between(self, players[i]) }
-    selected_index = Selector.select(distances)
-    players(selected_index)
   end
 
   def cross_with(partner)
@@ -64,11 +63,16 @@ class Player
      Player.reproduce_from(self, partner, partner_a, self_b)]
   end
 
-  def split_at(cross_point)
-    @chromosome.split_at(cross_point)
+  def mutate
+    mutation_point = rand(@chromosome.size)
+    @chromosome[mutation_point] = Action.random_action
   end
 
   private
+
+  def split_at(cross_point)
+    @chromosome.split_at(cross_point)
+  end
 
   def decide(self_history, other_history)
     @chromosome.get_next_move(self_history, other_history)

@@ -14,10 +14,8 @@ class Tournament
     @observer = observer
     @lattice = lattice
     @round_length = options[:round_length] || DEFAULT_ROUND_LENGTH
-    (options[:num_players] || DEFAULT_NUM_PLAYERS).times do
-      @population << Player.new(options[:history_length] || DEFAULT_HISTORY_LENGTH)
-    end
-    calculate_distances
+    @population = Population.new(options[:num_players] || DEFAULT_NUM_PLAYERS,
+                                 options[:history_length] || DEFAULT_HISTORY_LENGTH)
     @max_generations = options[:max_generations] || DEFAULT_MAX_GENERATIONS
     @num_generations = 0
   end
@@ -26,7 +24,7 @@ class Tournament
     until criterion_reached
       @observer.notify_state(@population)
       play_one_cycle
-      select_and_reproduce
+      reproduce(@population.select_fittest)
     end
     @observer.notify_end(@population)
   end
@@ -47,16 +45,14 @@ class Tournament
   # Select players for reproduction based on score ranking.
   # From the selected players, choose 2 based on distance to combine their genes.
   # Create 2 new players that replace their parents.
-  def select_and_reproduce
+  def reproduce(fittest)
     next_generation = []
-    selected = @population.select
-    selected.each do |player|
-      mate = player.get_mate_from(selected)
-      offspring = player.cross_with(mate)
-      next_generation += [offspring, offspring.mutate]
+    fittest.each do |player|
+      mate = player.get_partner_from(selected)
+      child1, child2 = player.cross_with(mate)
+      next_generation += [child1.mutate, child2.mutate]
     end
-    @population = next_generation
-    calculate_distances
+    @population.replace_players_with(next_generation)
     @num_generations += 1
   end
 
@@ -66,13 +62,10 @@ class Tournament
   def select_players_for_round
     partners = []
     @population.each_index do |i|
-      partners += [@population[i], player.get_partner(@population, i)]
+      player = @population[i]
+      partners += [player, player.get_partner_from(@population[i+1..-1])]
     end
     partners
-  end
-
-  def calculate_distances
-    @lattice.calculate_distances(@population)
   end
 
   def criterion_reached

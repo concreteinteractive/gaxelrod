@@ -26,7 +26,7 @@ class Chromosome
       combined_history = combine(history1, history2)
       @chromosome[ combined_history.to_i(2) ]
     else
-      random_action
+      Action.random_action
     end
   end
 
@@ -34,20 +34,25 @@ class Chromosome
     return @chromosome[0..cross_point], @chromosome[cross_point+1..-1]
   end
 
+  def []=(index, action)
+    raise Exception("Can assign only an Action.") unless action.class == Action
+    @chromosome[index] = action
+  end
+
+  def [](index)
+    @chromosome[index]
+  end
+
   private
 
   def fill_chromosome_randomly
     (2**(@history_length*2)).times do
-      @chromosome << rand(2) == 1 ? Action.cooperative : Action.treacherous
+      @chromosome << Action.random_action
     end
   end
 
   def histories_lengths_valid(history1, history2)
     history1.size >= @history_length && history1.size == history2.size
-  end
-
-  def random_action
-    rand(2) == 1 ? Action.cooperative : Action.treacherous
   end
 
   # Combine the @history_length latest entries of both histories and

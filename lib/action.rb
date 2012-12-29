@@ -1,10 +1,18 @@
 class Action
-  def self.cooperative
-    Action.new(true)
-  end
 
-  def self.treacherous
-    Action.new(false)
+  class << self
+
+    def cooperative
+      Action.new(true)
+    end
+
+    def treacherous
+      Action.new(false)
+    end
+
+    def random_action
+      rand(2) == 1 ? Action.cooperative : Action.treacherous
+    end
   end
 
   def cooperative?
