@@ -25,7 +25,7 @@ class Population
   def select_fittest
     fittest = []
     self.size.times do
-      selected_index = Selector.select(self.normalized_scores)
+      selected_index = Selector.pick_big_one(self.normalized_scores)
       fittest << @players[selected_index]
     end
     fittest

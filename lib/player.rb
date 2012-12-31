@@ -6,6 +6,9 @@ class Player
   attr_reader :score, :history, :history_length
   attr_accessor :chromosome, :x, :y
 
+  # 'global' counter to generate sequential ids for the Player instances:
+  @@current_player_id = 0
+
   REWARD = 3
   TEMPTATION = 5
   SUCKER = 0
@@ -13,6 +16,7 @@ class Player
 
   # Creates a player with a random chromosome and a random location.
   def initialize(history_length)
+    @id = Player.generate_id
     @chromosome = []
     @history = []
     @score = 0
@@ -38,13 +42,17 @@ class Player
       Lattice.instance.add_between(child, player1,player2)
       child
     end
+
+    def generate_id
+
+    end
   end
 
   # Selects a partner from population with a probability
   # based on the distance to this player: the nearer, the more probable.
   def get_partner_from(candidates)
     distances = Lattice.instance.distances_between(self, candidates)
-    selected_index = Selector.select(distances)
+    selected_index = Selector.pick_small_one(distances)
     candidates[selected_index]
   end
 

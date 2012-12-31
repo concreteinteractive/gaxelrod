@@ -10,9 +10,8 @@ class Tournament
   DEFAULT_ROUND_LENGTH = 64
   DEFAULT_MAX_GENERATIONS = 200000
 
-  def initialize(observer, lattice, options)
+  def initialize(observer, options)
     @observer = observer
-    @lattice = lattice
     @round_length = options[:round_length] || DEFAULT_ROUND_LENGTH
     @population = Population.new(options[:num_players] || DEFAULT_NUM_PLAYERS,
                                  options[:history_length] || DEFAULT_HISTORY_LENGTH)
@@ -48,7 +47,7 @@ class Tournament
   def reproduce(fittest)
     next_generation = []
     fittest.each do |player|
-      mate = player.get_partner_from(selected)
+      mate = player.get_partner_from(fittest)
       child1, child2 = player.cross_with(mate)
       next_generation += [child1.mutate, child2.mutate]
     end
