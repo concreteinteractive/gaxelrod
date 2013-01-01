@@ -3,7 +3,7 @@ require 'selector'
 
 class Player
 
-  attr_reader :score, :history, :history_length
+  attr_reader :id, :score, :history, :history_length
   attr_accessor :chromosome, :x, :y
 
   # 'global' counter to generate sequential ids for the Player instances:
@@ -15,14 +15,14 @@ class Player
   PUNISHMENT = 1
 
   # Creates a player with a random chromosome and a random location.
-  def initialize(history_length)
-    @id = Player.generate_id
+  def initialize(history_length, x = nil, y = nil)
+    @id = Player.next_id
     @chromosome = []
     @history = []
     @score = 0
     @history_length = history_length
-    @x = 0
-    @y = 0
+    @x = x ? x : 0
+    @y = y ? y : 0
   end
 
   class << self
@@ -43,8 +43,9 @@ class Player
       child
     end
 
-    def generate_id
-
+    def next_id
+      @@current_player_id += 1
+      @@current_player_id
     end
   end
 

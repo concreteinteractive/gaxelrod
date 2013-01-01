@@ -15,7 +15,7 @@ module Selector
       result
     end
     r = rand * cumulative_probs.max
-    # again, select, last, and find_index should be fast, since set is ordered:
+    # again, select, last, and find_index should be fast, since the set is ordered:
     selected_value = cumulative_probs.select{|value| value >= r}.last
     cumulative_probs.find_index(selected_value)
   end

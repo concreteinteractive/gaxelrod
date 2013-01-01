@@ -13,21 +13,43 @@ class Lattice
   end
 
   def add_between(child, player1, player2)
-
+    child.x, child.y = random_point_between(player1.point, player2.point)
+    add(child)
   end
 
-  def remove(player)
-    @players.each do |element|
-      element.distances.reject! { |el| el.id == element.id }
+  # Remove this player from the players list (hash) and
+  # all references to this player from the other players'
+  # distances hashes.
+  def remove(player, remove_references = false)
+    if remove_references
+      @players.each do |element|
+        element.distances.reject! { |key| distances[key].id == element.id }
+      end
     end
+    @players.delete(player.id)
+  end
+
+  def calculate_distances
+    #TODO calculates twice as many distances as necessary!
+    @players.each_value do |element1|
+      @players.each_value do |element2|
+        if element1 != element2
+          element1.distances[element2.id] = calculate_distance(element1.point, element2.point)
+        end
+      end
+    end
+  end
+
+  def calculate_distance(point1, point2)
+    a = (point2.first - point1.first)**2
+    b = (point2.last - point1.last)**2
+    Math.sqrt(a+b)
   end
 
   def distances_between(player, candidates)
-    distances = []
-    candidates.each_index do |i|
-      distances << distance_between(player, candidates[i])
+    candidates.map do |candidate|
+      distance_between(player, candidate)
     end
-    distances
   end
 
   def distance_between(player1, player2)
@@ -35,6 +57,29 @@ class Lattice
     p1.distances[player2.id]
   end
 
+  private
+
+  # rp = point1 + (point2-point1)/2 + randomly_scale( rotate90( (point2-point1)/2 )
+  def random_point_between(point1, point2)
+    half_way = [point2.first - point1.first, point2.last - point1.last]
+    half_way = [half_way.first/2.0, half_way.last/2.0]
+    center = [point1.first + half_way.first, point1.last + half_way.last]
+    random_part = rand_scale( rotate90(half_way) )
+    [center.first + random_part.first, center.last + random_part.last]
+  end
+
+  def rotate90(p)
+    x = p.first
+    y = p.last
+    [-y, x]
+  end
+
+  def rand_scale(p)
+    x = p.first
+    y = p.last
+    r = rand
+    [r*x, r*y]
+  end
 end
 
 # Makes Lattice a singleton, for actual use in the rest of the application.
@@ -42,7 +87,7 @@ class UniqLattice < Lattice
   include Singleton
 end
 
-class element
+class Element
 
   attr_accessor :player, :distances
 
@@ -53,6 +98,10 @@ class element
 
   def id
     @player.id
+  end
+
+  def point
+    [@player.x, @player.y]
   end
 
 end
