@@ -94,7 +94,7 @@ describe "Lattice" do
       end
     end
 
-    describe "private methods" do
+    describe "private helper methods" do
       before do
         @vector = [3,4]
       end
