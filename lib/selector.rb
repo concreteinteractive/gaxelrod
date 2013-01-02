@@ -14,20 +14,12 @@ module Selector
     # probabilities array is preserved.
     cumulative_probs = ActiveSupport::OrderedHash.new
     probabilities.each_with_index do |prob, index|
-      if index == 0
-        cum_prob = 0
-      else
-        cum_prob = cumulative_probs.keys.last
-      end
+      cum_prob = index == 0 ? 0 : cumulative_probs.keys.last
       cumulative_probs[cum_prob + prob] = index
     end
 
-    puts cumulative_probs
-
     # last entry in the cum.probs hash contains sum of all probalilties
     r = rand * cumulative_probs.keys.last
-    puts "cumprob.lastkey is #{cumulative_probs.keys.last}, r is #{r}"
-    # again, select, last, and find_index should be fast, since the set is ordered:
     cumulative_probs.select!{|key| key >= r}
     cumulative_probs[cumulative_probs.keys.first]
   end

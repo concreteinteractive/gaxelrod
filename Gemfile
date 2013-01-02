@@ -30,6 +30,7 @@ group :development, :test do
   #Reads environment variables from a .env file in the project root (.gitignored so secret variables aren't in github)
   gem 'rspec-rails'
   gem 'rack-test'
+  gem 'spork'
 
   #Setup Jasmine with Guard
   #https://gist.github.com/956438
