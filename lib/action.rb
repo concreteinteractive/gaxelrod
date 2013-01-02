@@ -23,6 +23,11 @@ class Action
     not cooperative?
   end
 
+  def ==(other)
+    return false if self.class != other.class
+    self.cooperative? == other.cooperative?
+  end
+
   private
   def initialize(be_cooperative = true)
     @cooperative = be_cooperative

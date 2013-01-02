@@ -13,11 +13,13 @@ class Chromosome
     def create_randomly(history_length)
       chr = Chromosome.new(history_length)
       chr.fill_chromosome_randomly
+      chr
     end
 
     def create_from(history_length, first_part, second_part)
       chr = Chromosome.new(history_length)
       chr.chromosome = first_part + second_part
+      chr
     end
   end
 
@@ -43,13 +45,13 @@ class Chromosome
     @chromosome[index]
   end
 
-  private
-
   def fill_chromosome_randomly
     (2**(@history_length*2)).times do
       @chromosome << Action.random_action
     end
   end
+
+  private
 
   def histories_lengths_valid(history1, history2)
     history1.size >= @history_length && history1.size == history2.size
