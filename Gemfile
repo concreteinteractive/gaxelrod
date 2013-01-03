@@ -29,6 +29,7 @@ group :development, :test do
   #https://github.com/bkeepers/dotenv
   #Reads environment variables from a .env file in the project root (.gitignored so secret variables aren't in github)
   gem 'rspec-rails'
+  gem 'rspec-mocks'
   gem 'rack-test'
   gem 'spork'
 

@@ -187,6 +187,7 @@ DEPENDENCIES
   jquery-rails
   rack-test
   rails (= 3.2.3)
+  rspec-mocks
   rspec-rails
   sass-rails (~> 3.2.3)
   spork

@@ -29,7 +29,7 @@ class Player
 
     def create(history_length)
       p = Player.new(history_length)
-      p.chromosome = Chromosome.new(history_length)
+      p.chromosome = Chromosome.create_randomly(history_length)
       p.x = rand
       p.y = rand
       UniqLattice.instance.add(p)
@@ -49,7 +49,7 @@ class Player
     end
   end
 
-  # Selects a partner from population with a probability
+  # Selects a partner from the candidates array with a probability
   # based on the distance to this player: the nearer, the more probable.
   def get_partner_from(candidates)
     distances = UniqLattice.instance.distances_between(self, candidates)
@@ -81,12 +81,7 @@ class Player
     [@x, @y]
   end
 
-  private
-
-  def split_at(cross_point)
-    @chromosome.split_at(cross_point)
-  end
-
+  # Returns next action, based on own and partner's history.
   def decide(self_history, other_history)
     @chromosome.get_next_move(self_history, other_history)
   end
@@ -96,8 +91,14 @@ class Player
     count!(self_action, other_action)
   end
 
+  def split_at(cross_point)
+    @chromosome.split_at(cross_point)
+  end
+
+  private
+
   def count!(self_action, other_action)
-    if self_action.cooperative
+    if self_action.cooperative?
       @score += REWARD if other_action.cooperative?
     else
       @score += other_action.cooperative? ? TEMPTATION : PUNISHMENT
