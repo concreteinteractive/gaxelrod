@@ -18,8 +18,8 @@ describe "Lattice" do
       it "adds an element to the players hash" do
         @lattice.add(@player)
         players = @lattice.instance_eval{ @players }
-        players.class.should == Hash
-        players[@player.id].class.should == Element
+        players.should be_a Hash
+        players[@player.id].should be_a Element
       end
       it "adds a second element to the players hash" do
         @lattice.add(@player)
@@ -32,18 +32,53 @@ describe "Lattice" do
       end
     end
 
-    describe "calculate_distance" do
-      it "returns the distance between 2 points" do
-        d = @lattice.calculate_distance([6,5], [2,8])
-        d.should == 5
+    describe "remove" do
+      before do
+        @p1 = Player.new(2)
+        @p3 = Player.new(2)
+        @p2 = Player.new(2)
+        @lattice.add(@p1)
+        @lattice.add(@p2)
+        @lattice.add(@p3)
+        @lattice.calculate_distances
       end
-      it "returns 0 if the points are identical" do
-        d = @lattice.calculate_distance([6,5], [6,5])
-        d.should == 0
+
+      let(:players) { @lattice.instance_eval{@players} }
+
+      it "removes a player from @players" do
+        players.has_key?(@p2.id).should be_true
+        @lattice.remove(@p2)
+        players.has_key?(@p2.id).should be_false
       end
-      it "retuns the distance between 2 points when the are on the same axis" do
-        d = @lattice.calculate_distance([6,5], [7,5])
-        d.should == 1
+      it "removes all references to the removed player if called with parameter true" do
+        @lattice.remove(@p2, true)
+        players.each_value do |element|
+          element.distances.has_key?(@p2.id).should be_false
+        end
+      end
+    end
+
+    describe "add_between" do
+
+      before do
+        @p1 = Player.new(2, 1, 2)
+        @p2 = Player.new(2, 3, 2)
+        @lattice.add(@p1)
+        @lattice.add(@p2)
+        @child = Player.new(2, 0, 0)
+      end
+
+      it "adds a player" do
+        expect {
+          @lattice.add_between(@child, @p1, @p2)
+        }.to change{@lattice.instance_eval{@players}.size}.by(1)
+      end
+
+      it "adds a player between 2 others" do
+        @lattice.add_between(@child, @p1, @p2)
+        # (further testing of where the child.x and .y are: see specs for random_point_between)
+        @child.x.should_not == 0
+        @child.y.should_not == 0
       end
     end
 
@@ -59,6 +94,21 @@ describe "Lattice" do
         @lattice.add(@p3)
 
         @lattice.calculate_distances
+      end
+
+      describe "calculate_distance" do
+        it "returns the distance between 2 points" do
+          d = @lattice.calculate_distance([6,5], [2,8])
+          d.should == 5
+        end
+        it "returns 0 if the points are identical" do
+          d = @lattice.calculate_distance([6,5], [6,5])
+          d.should == 0
+        end
+        it "retuns the distance between 2 points when the are on the same axis" do
+          d = @lattice.calculate_distance([6,5], [7,5])
+          d.should == 1
+        end
       end
 
       describe "calculate_distances" do
@@ -110,10 +160,22 @@ describe "Lattice" do
       describe "rand_scale" do
         it "scales a vector by a random number between 0 and 1" do
           scaled = @lattice.send(:rand_scale, @vector)
-          (scaled.first / scaled.last.to_f).should == @vector.first / @vector.last.to_f
+          (scaled.first / scaled.last.to_f).should be_within(0.001).of(@vector.first / @vector.last.to_f)
           orig_length = @lattice.calculate_distance([0,0], @vector)
           scaled_length = @lattice.calculate_distance([0,0], scaled)
           orig_length.should >= scaled_length
+        end
+      end
+
+      describe "random_point_between" do
+        let(:p1) {[1,2]}
+        let(:p2) {[3,2]}
+        let(:point) {@lattice.send(:random_point_between, p1, p2)}
+        it "returns a point that is on a line that is perpendicular to the line segment p1--p2 and runs through its center" do
+          point.first.should be_within(0.001).of(2)
+        end
+        it "returns a point that is not further away from the line segment p1--p2 than have its length" do
+          point.last.should be_within(1).of(2)
         end
       end
     end

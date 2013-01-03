@@ -37,12 +37,16 @@ class Chromosome
   end
 
   def []=(index, action)
-    raise Exception("Can assign only an Action.") unless action.class == Action
+    raise TypeError("Can assign only an Action.") unless action.class == Action
     @chromosome[index] = action
   end
 
   def [](index)
     @chromosome[index]
+  end
+
+  def size
+    @chromosome.size
   end
 
   def fill_chromosome_randomly

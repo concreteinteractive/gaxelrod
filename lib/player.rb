@@ -17,7 +17,7 @@ class Player
   # Creates a player with a random chromosome and a random location.
   def initialize(history_length, x = nil, y = nil)
     @id = Player.next_id
-    @chromosome = []
+    @chromosome = nil
     @history = []
     @score = 0
     @history_length = history_length
@@ -32,14 +32,14 @@ class Player
       p.chromosome = Chromosome.new(history_length)
       p.x = rand
       p.y = rand
-      Lattice.instance.add(p)
+      UniqLattice.instance.add(p)
       p
     end
 
-    def reproduce_from(player1, player2, chromosome_first_half, chromosome_second_half)
-      child = Player.new(@history_length)
-      child.chromosome = Chromosome.create_from(@history_length, chromosome_first_half, chromosome_second_half)
-      Lattice.instance.add_between(child, player1,player2)
+    def reproduce_from(player1, player2, chromosome_first_part, chromosome_second_part)
+      child = Player.new(player1.history_length)
+      child.chromosome = Chromosome.create_from(child.history_length, chromosome_first_part, chromosome_second_part)
+      UniqLattice.instance.add_between(child, player1,player2)
       child
     end
 
@@ -52,7 +52,7 @@ class Player
   # Selects a partner from population with a probability
   # based on the distance to this player: the nearer, the more probable.
   def get_partner_from(candidates)
-    distances = Lattice.instance.distances_between(self, candidates)
+    distances = UniqLattice.instance.distances_between(self, candidates)
     selected_index = Selector.pick_small_one(distances)
     candidates[selected_index]
   end
@@ -75,6 +75,10 @@ class Player
   def mutate
     mutation_point = rand(@chromosome.size)
     @chromosome[mutation_point] = Action.random_action
+  end
+
+  def point
+    [@x, @y]
   end
 
   private

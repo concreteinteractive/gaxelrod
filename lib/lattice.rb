@@ -22,8 +22,8 @@ class Lattice
   # distances hashes.
   def remove(player, remove_references = false)
     if remove_references
-      @players.each do |element|
-        element.distances.reject! { |key| distances[key].id == element.id }
+      @players.each_value do |element|
+        element.distances.reject! { |key| key == player.id }
       end
     end
     @players.delete(player.id)
