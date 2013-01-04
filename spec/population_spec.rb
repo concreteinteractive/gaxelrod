@@ -67,5 +67,23 @@ describe "Population" do
     end
   end
 
+  describe "select_fittest" do
+    before do
+      Selector.stub(:pick_big_one).and_return(0,0,2)
+    end
+    it "returns an array with the fittest players, as selected by Selector.pick_big_one" do
+      fittest = population.select_fittest
+      fittest.size.should == population.size
+      [0, 0, 2].each do |i|
+        fittest.include?(population.players[i]).should be_true
+      end
+    end
+  end
+
+  describe "private method scores" do
+    it "returns an array with the scores of the players" do
+      population.send(:scores).should == [0, 0, 0]
+    end
+  end
 
 end

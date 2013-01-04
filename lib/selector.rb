@@ -6,12 +6,11 @@ module Selector
   # (aka stochastic sampling with replacement), i.e. the index is selected based
   # on the size of the entries in this probabilities array: the larger an entry,
   # the higher the probability it is selected.
+  # Probabilities array doesn't need to be actual probabilities (that sum up to 1).
+  # It just needs to be a list of numbers (integers or e.g. real nr).
   def self.pick_big_one(probabilities)
-    # TODO this algorh doesn't work since associations to orig indinces are lost
-    # when creating the sorted set for the cumulative probs!
-    # Calculate the cumulative probabilities; we're using a SortedSet and adding
-    # cumulative i.e. constantly growing, probabilities, so the order of the initial
-    # probabilities array is preserved.
+    # Calculate the cumulative probabilities. Store them in a hash as
+    # keys, and each value is the according index of the probabilities array:
     cumulative_probs = ActiveSupport::OrderedHash.new
     probabilities.each_with_index do |prob, index|
       cum_prob = index == 0 ? 0 : cumulative_probs.keys.last

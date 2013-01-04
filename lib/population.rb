@@ -25,13 +25,17 @@ class Population
   def select_fittest
     fittest = []
     self.size.times do
-      selected_index = Selector.pick_big_one(self.normalized_scores)
+      selected_index = Selector.pick_big_one(scores)
       fittest << @players[selected_index]
     end
     fittest
   end
 
   private
+
+  def scores
+    @players.map{ |player| player.score }
+  end
 
   def normalized_scores
     total = self.total_score
