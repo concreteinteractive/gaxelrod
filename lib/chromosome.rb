@@ -41,8 +41,9 @@ class Chromosome
     @chromosome[index] = action
   end
 
-  def [](index)
-    @chromosome[index]
+  def [](index_or_range, to=nil)
+    return @chromosome[index_or_range, to] if to
+    return @chromosome[index_or_range]
   end
 
   def size

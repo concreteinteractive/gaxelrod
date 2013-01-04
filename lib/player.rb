@@ -1,3 +1,4 @@
+require 'chromosome'
 require 'lattice'
 require 'selector'
 
@@ -93,6 +94,10 @@ class Player
 
   def split_at(cross_point)
     @chromosome.split_at(cross_point)
+  end
+
+  def to_s
+    "player#{@id}"
   end
 
   private

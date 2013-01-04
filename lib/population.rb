@@ -7,13 +7,13 @@ class Population
     @history_length = history_length
     @players = []
     num_players.times {@players << Player.create(history_length)}
-    Lattice.instance.calculate_distances
+    UniqLattice.instance.calculate_distances
   end
 
   def replace_players_with(new_players)
-    players.each { |p| Lattice.instance.remove(p) }
+    @players.each { |p| UniqLattice.instance.remove(p) }
     @players = new_players
-    Lattice.instance.calculate_distances
+    UniqLattice.instance.calculate_distances
   end
 
   def size

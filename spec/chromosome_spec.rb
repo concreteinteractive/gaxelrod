@@ -50,7 +50,6 @@ describe "Chromosome" do
       @action1001 = @chromosome.chromosome[9]   #9 = 1001 binary
       @action1111 = @chromosome.chromosome[15]  #15= 1111 binary
 
-      #MockAction = mock(Action)
       Action.stub(:random_action).and_return(Action.cooperative)
     end
 
@@ -69,7 +68,6 @@ describe "Chromosome" do
   end
 
   describe "split_at" do
-
     let(:expected_part1) {@chromosome.chromosome[0..@crosspoint]}
     let(:expected_part2) {@chromosome.chromosome[@crosspoint+1..-1]}
 
@@ -93,19 +91,68 @@ describe "Chromosome" do
 
   describe "[]" do
 
-    let(:expected_action) {@chromosome.chromosome[@position]}
-
     before do
-      @position = 5
+      @chromosome = Chromosome.create_randomly(2)
     end
 
-    it "returns the action at the specified position" do
-      @chromosome[@position].should == expected_action
-      @chromosome[@position = 1].should == expected_action
-      @chromosome[@position = 11].should == expected_action
-      @chromosome[@position = 7].should == expected_action
-      @chromosome[@position = 0].should == expected_action
-      @chromosome[@position = @chromosome.size-1].should == expected_action
+    describe "parameter is an index" do
+      let(:expected_action) {@chromosome.chromosome[@position]}
+
+      it "returns the action at the specified position" do
+        @chromosome[@position=5].should == expected_action
+      end
+      it "returns the action at the specified position" do
+        @chromosome[@position=1].should == expected_action
+      end
+      it "returns the action at the specified position" do
+        @chromosome[@position=11].should == expected_action
+      end
+      it "returns the action at the specified position" do
+        @chromosome[@position=7].should == expected_action
+      end
+      it "returns the action at the specified position" do
+        @chromosome[@position=0].should == expected_action
+      end
+      it "returns the action at the specified position" do
+        @chromosome[@position=@chromosome.size-1].should == expected_action
+      end
+    end
+
+    describe "parameters are two indices" do
+      let(:expected_actions) {@chromosome.chromosome[@from, @to]}
+
+      it "returns the array of actions specified by from and to parameters" do
+        @chromosome[@from=3, @to=6].should == expected_actions
+      end
+      it "returns the array of actions specified by from and to parameters" do
+        @chromosome[@from=0, @to=6].should == expected_actions
+      end
+      it "returns the array of actions specified by from and to parameters" do
+        @chromosome[@from=0, @to=-3].should == expected_actions
+      end
+      it "returns the array of actions specified by from and to parameters" do
+        @chromosome[@from=3, @to=3].should == expected_actions
+      end
+    end
+
+    describe "parameter is a range" do
+      let(:expected_actions) {@chromosome.chromosome[@range]}
+
+      it "returns the array of action specified by the range parameter" do
+        @chromosome[@range=3..6].should == expected_actions
+      end
+      it "returns the array of action specified by the range parameter" do
+        @chromosome[@range=0..6].should == expected_actions
+      end
+      it "returns the array of action specified by the range parameter" do
+        @chromosome[@range=3..-1].should == expected_actions
+      end
+      it "returns the array of action specified by the range parameter" do
+        @chromosome[@range=0..-1].should == expected_actions
+      end
+      it "returns the array of action specified by the range parameter" do
+        @chromosome[@range=-3..-1].should == expected_actions
+      end
     end
   end
 

@@ -28,6 +28,10 @@ class Action
     self.cooperative? == other.cooperative?
   end
 
+  def to_s
+    cooperative? ? 'C' : 'T'
+  end
+
   private
   def initialize(be_cooperative = true)
     @cooperative = be_cooperative
