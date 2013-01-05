@@ -1,7 +1,7 @@
 class Population
 
   extend Forwardable
-  def_delegators :@players, :[], :each_index, :size
+  def_delegators :@players, :[], :each_index, :each, :size
 
   attr_reader :history_length
   attr_accessor :players
@@ -30,6 +30,9 @@ class Population
     fittest
   end
 
+  def >(array)
+    @players.size > array.size
+  end
 
   private
 

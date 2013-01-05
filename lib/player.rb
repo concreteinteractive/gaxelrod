@@ -1,6 +1,7 @@
 require 'chromosome'
 require 'lattice'
 require 'selector'
+require 'tournament'
 
 class Player
 
@@ -40,7 +41,15 @@ class Player
     def reproduce_from(player1, player2, chromosome_first_part, chromosome_second_part)
       child = Player.new(player1.history_length)
       child.chromosome = Chromosome.create_from(child.history_length, chromosome_first_part, chromosome_second_part)
-      UniqLattice.instance.add_between(child, player1,player2)
+      UniqLattice.instance.add_between(child, player1.point,player2.point)
+      child
+    end
+
+    def clone_with_errors(player, num_mutations)
+      child = Player.new(player.history_length)
+      child.chromosome = Chromosome.create_from(child.history_length, player.chromosome[0..-1], [])
+      UniqLattice.instance.add_near(child, player)
+      num_mutations.times {child.mutate!}
       child
     end
 
@@ -52,7 +61,10 @@ class Player
 
   # Selects a partner from the candidates array with a probability
   # based on the distance to this player: the nearer, the more probable.
-  def get_partner_from(candidates)
+  # The partner cannot be self.
+  def get_partner_from(players)
+    candidates = players.reject{|player| player == self}
+    return nil if candidates.empty?
     distances = UniqLattice.instance.distances_between(self, candidates)
     selected_index = Selector.pick_small_one(distances)
     candidates[selected_index]
@@ -71,6 +83,10 @@ class Player
     partner_a, partner_b = partner.split_at(cross_point)
     [Player.reproduce_from(self, partner, self_a, partner_b),
      Player.reproduce_from(self, partner, partner_a, self_b)]
+  end
+
+  def mutated_clone
+    Player.clone_with_errors(self, mutation_error_rate)
   end
 
   def mutate!
@@ -98,6 +114,11 @@ class Player
 
   def to_s
     "player#{@id}"
+  end
+
+
+  def mutation_error_rate
+    (@chromosome.size * Tournament::MUTATION_ERROR_RATE).round
   end
 
   private

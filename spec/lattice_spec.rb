@@ -61,24 +61,45 @@ describe "Lattice" do
     describe "add_between" do
 
       before do
-        @p1 = Player.new(2, 1, 2)
-        @p2 = Player.new(2, 3, 2)
-        @lattice.add(@p1)
-        @lattice.add(@p2)
+        @point1 = [1, 2]
+        @point2 = [3, 2]
         @child = Player.new(2, 0, 0)
       end
 
       it "adds a player" do
         expect {
-          @lattice.add_between(@child, @p1, @p2)
+          @lattice.add_between(@child, @point1, @point2)
         }.to change{@lattice.instance_eval{@players}.size}.by(1)
       end
 
       it "adds a player between 2 others" do
-        @lattice.add_between(@child, @p1, @p2)
+        @lattice.add_between(@child, @point1, @point2)
         # (further testing of where the child.x and .y are: see specs for random_point_between)
         @child.x.should_not == 0
         @child.y.should_not == 0
+      end
+    end
+
+    describe "add_near" do
+      before do
+        @child = Player.new(2, 0, 0)
+        @player = Player.new(2, 2, 2)
+        @lattice.add(@player)
+        @lattice.add(Player.new(2, 4, 2))
+        @lattice.add(Player.new(2, 4, 3))
+        @lattice.calculate_distances
+      end
+
+      it "adds a player" do
+        expect {
+          @lattice.add_near(@child, @player)
+        }.to change{@lattice.instance_eval{@players}.size}.by(1)
+      end
+
+      it "adds a player not farther than the player's nearest neighbor" do
+        @lattice.add_near(@child, @player)
+        dist = @lattice.calculate_distance(@child.point, @player.point)
+        dist.should <= 2
       end
     end
 
@@ -176,6 +197,22 @@ describe "Lattice" do
         end
         it "returns a point that is not further away from the line segment p1--p2 than have its length" do
           point.last.should be_within(1).of(2)
+        end
+      end
+
+      describe "random_point_near" do
+        before do
+          Lattice.any_instance.stub(:rand).and_return(0.5, 0.25)
+          @player = Player.new(2, 2, 2)
+          @lattice.add(@player)
+          @lattice.add(Player.new(2, 4, 2))
+          @lattice.add(Player.new(2, 4, 3))
+          @lattice.calculate_distances
+        end
+        it "returns a point not farther away from self than its nearest player" do
+          point = @lattice.send(:random_point_near, @player)
+          point.first.should == @player.x
+          point.last.should  == @player.y + 1
         end
       end
     end

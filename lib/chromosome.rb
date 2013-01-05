@@ -56,6 +56,10 @@ class Chromosome
     end
   end
 
+  def to_s
+    @chromosome.map{|a| a.to_s}.join
+  end
+
   private
 
   def histories_lengths_valid(history1, history2)

@@ -80,12 +80,31 @@ describe "Population" do
     end
   end
 
+  describe ">" do
+    it "returns true if the players array is greater than the compared array's size" do
+      (population > [1,2]).should be_true
+    end
+    it "returns fals if the players array is equal to the compared array's size" do
+      (population > [1,2,3]).should be_false
+    end
+    it "returns fals if the players array is not greater than the compared array's size" do
+      (population > [1,2,3,4]).should be_false
+    end
+  end
+
   describe "delegated methods" do
     describe "each_index" do
       it "executes the block for each player, yielding its index" do
         player_indices = []
         population.each_index { |i| player_indices << i }
         player_indices.should == [0, 1, 2]
+      end
+    end
+    describe "each" do
+      it "executes the block for each player" do
+        player_ids = []
+        population.each { |p| player_ids << p.id }
+        player_ids.should == population.players.map { |p| p.id }
       end
     end
     describe "[]" do

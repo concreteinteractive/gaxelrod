@@ -12,8 +12,13 @@ class Lattice
     @players[element.id] = element
   end
 
-  def add_between(child, player1, player2)
-    child.x, child.y = random_point_between(player1.point, player2.point)
+  def add_between(child, point1, point2)
+    child.x, child.y = random_point_between(point1, point2)
+    add(child)
+  end
+
+  def add_near(child, player)
+    child.x, child.y = random_point_near(player)
     add(child)
   end
 
@@ -66,6 +71,20 @@ class Lattice
     center = [point1.first + half_way.first, point1.last + half_way.last]
     random_part = rand_scale( rotate90(half_way) )
     [center.first + random_part.first, center.last + random_part.last]
+  end
+
+  # Return a point in a circle with center player.point
+  # and radius |player.point, nearest_other_point|.
+  def random_point_near(player)
+    raise Exception("Player has no neighbors") if @players[player.id].distances.empty?
+    max_radius = @players[player.id].distances.values.sort.first
+    # directly transforming random radius and angle to polar coords
+    # distorts the sampling; need to correct (see uniformly sampling a disk).
+    radius = Math.sqrt(max_radius * rand)
+    angle = 2 * Math::PI * rand
+    dx = Math.cos(angle)*radius
+    dy = Math.sin(angle)*radius
+    [player.x + dx, player.y + dy]
   end
 
   def rotate90(p)

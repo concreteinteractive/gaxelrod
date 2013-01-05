@@ -64,6 +64,48 @@ describe "Player" do
         child.chromosome.chromosome[0..chr1.size-1].should == chr1
         child.chromosome.chromosome[chr1.size..-1].should == chr2
       end
+      it "adds the player to the Lattice" do
+        # need to instantiate these players already, so they are added to Lattice before expect{} runs:
+        playerA; playerB
+        expect{
+          Player.reproduce_from(playerA, playerB, chr1, chr2)
+        }.to change{UniqLattice.instance.instance_eval{@players.size}}.by(1)
+      end
+    end
+
+    describe "clone_with_errors" do
+
+      before do
+        @player1 = Player.create(2)
+        chr = (0..7).inject([]) do |result, nr|
+          result << Action.treacherous
+          result
+        end
+        # this player has a completely treacherous chromosome:
+        @player1.chromosome = Chromosome.create_from(2, chr, [])
+        @player2 = Player.create(2)
+        @chromosome_length = @player1.chromosome.size
+        UniqLattice.instance.calculate_distances
+        Player.any_instance.stub(:rand).and_return(0, 7, @chromosome_length-1)
+        Action.stub(:random_action).and_return(Action.cooperative)
+      end
+
+      it "adds the player to the Lattice" do
+        expect{
+          Player.clone_with_errors(@player1, 2)
+        }.to change{UniqLattice.instance.instance_eval{@players.size}}.by(1)
+      end
+      it "copies the parents chromosome but with the specified number of mutations" do
+        child = Player.clone_with_errors(@player1, 2)
+        child.chromosome.size.should == @chromosome_length
+        (0..@chromosome_length-1).each do |i|
+          if [0, 7, @chromosome_length-1].include?(i)
+            child.chromosome[i].should == Action.cooperative
+          else
+            child.chromosome[i].should == Action.treacherous
+          end
+        end
+      end
     end
   end
 
@@ -72,15 +114,26 @@ describe "Player" do
 
     describe "get_partner_from" do
 
-      before do
-        @candidates = []
-        4.times { @candidates << Player.create(2) }
-        UniqLattice.instance.stub(:distances_between).and_return([3,10,8,1])
-        Selector.stub(:pick_small_one).and_return(3)
+      context "candidates contains at least 2 different players" do
+        before do
+          @candidates = [player]
+          4.times { @candidates << Player.create(2) }
+          UniqLattice.instance.stub(:distances_between).and_return([3,10,8,1])
+          Selector.stub(:pick_small_one).and_return(3)
+        end
+
+        it "returns a player from the candidates array" do
+          player.get_partner_from(@candidates).should == @candidates[4]
+        end
       end
 
-      it "returns an player from the candidates array" do
-        player.get_partner_from(@candidates).should == @candidates[3]
+      context "all players in candidates are identical" do
+
+        let(:candidates) {[player, player, player]}
+
+        it "returns nil" do
+          player.get_partner_from(candidates).should == nil
+        end
       end
     end
 
@@ -236,6 +289,17 @@ describe "Player" do
         expect {
           player1.update(Action.cooperative, Action.cooperative)
         }.to change{player1.score}.by(Player::REWARD)
+      end
+    end
+
+    describe "mutation_error_rate" do
+
+      let(:player){Player.create(2)}
+
+      it "multiplicates Tournament::MUTATION_ERROR_RATE with chromosome length and rounds it" do
+        mer = Tournament::MUTATION_ERROR_RATE
+        player.mutation_error_rate.should == (16 * mer).round
+        #player.mutation_error_rate.should == 2
       end
     end
 

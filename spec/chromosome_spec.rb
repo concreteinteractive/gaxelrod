@@ -32,11 +32,17 @@ describe "Chromosome" do
         random_chr.size.should == 16
         random_chr.chromosome.each {|action| action.class.should == Action}
       end
+    end
+    describe "create_from" do
       it "creates a Chromosome whose @chromosome is a concatenation of 2 partial chromosomes" do
         first_part = [Action.cooperative, Action.treacherous]
         second_part = [Action.cooperative, Action.cooperative]
         combined_chr = Chromosome.create_from(2, first_part, second_part)
-        combined_chr.chromosome.map{|a| a.cooperative?}.should == [true, false, true, true]
+        combined_chr.to_s.should == "CTCC"
+      end
+      it "creates a chromosome whose @chromosome is a copy of the first_part, if second_part is an empty array" do
+        combined_chr = Chromosome.create_from(2, [Action.cooperative, Action.treacherous], [])
+        combined_chr.to_s.should == "CT"
       end
     end
   end

@@ -11,6 +11,8 @@ class Tournament
   DEFAULT_ROUND_LENGTH = 64
   DEFAULT_MAX_GENERATIONS = 200000
 
+  MUTATION_ERROR_RATE = 0.1
+
   def initialize(observer, options = {})
     @observer = observer
     @round_length = options[:round_length] || DEFAULT_ROUND_LENGTH
@@ -49,8 +51,13 @@ class Tournament
     next_generation = []
     fittest.each do |player|
       mate = player.get_partner_from(fittest)
-      child1, child2 = player.cross_with(mate)
-      next_generation += [child1.mutate!, child2.mutate!]
+      if mate.nil?
+        break unless add_next_child(next_generation, player.mutated_clone)
+      else
+        child1, child2 = player.cross_with(mate)
+        break unless add_next_child(next_generation, child1.mutate!)
+        break unless add_next_child(next_generation, child2.mutate!)
+      end
     end
     @population.replace_players_with(next_generation)
     @num_generations += 1
@@ -59,11 +66,13 @@ class Tournament
   # Creates an array of couples (each an array with 2 players). For each player,
   # a partner is selected with a probability based on the distance between the
   # players.
+  # A player might play with the same partner more than once.
   def select_players_for_round
     couples = []
-    (0..@population.size-2).each do |i|
-      player = @population[i]
-      couples << [player, player.get_partner_from(@population[i+1..-1])]
+    @population.each do |player|
+      (@population.size-1).times do
+        couples << [player, player.get_partner_from(@population.players)]
+      end
     end
     couples
   end
@@ -71,4 +80,16 @@ class Tournament
   def criterion_reached
      @num_generations >= @max_generations
   end
+
+  private
+
+  def add_next_child(next_generation, child)
+    if @population > next_generation
+      next_generation << child
+      true
+    else
+      false
+    end
+  end
+
 end
