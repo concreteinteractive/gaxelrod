@@ -105,4 +105,73 @@ describe "Tournament" do
       end
     end
   end
+
+  describe "play_round" do
+
+    let(:player1) {Player.create(2)}
+    let(:player2) {Player.create(2)}
+    let(:round_length) {tournament.instance_eval{@round_length}}
+
+    context "both players always cooperate" do
+
+      before do
+        Action.stub(:random_action).and_return(Action.cooperative)
+      end
+
+      it "sets the score of the first player to @round_length * REWARD" do
+        expect{
+          tournament.play_round(player1, player2)
+        }.to change{player1.score}.from(0).to(round_length * Tournament::REWARD)
+      end
+      it "sets the score of the second player to @round_length * REWARD" do
+        expect{
+          tournament.play_round(player1, player2)
+        }.to change{player2.score}.from(0).to(round_length * Tournament::REWARD)
+      end
+      it "updates the history of player 1 with the actions he took" do
+        expected_history = (1..4).map{|i| Action.cooperative}
+        expect{
+          tournament.play_round(player1, player2)
+        }.to change{player1.history}.from([]).to(expected_history)
+      end
+      it "updates the history of player 2 with the actions he took" do
+        expected_history = (1..4).map{|i| Action.cooperative}
+        expect{
+          tournament.play_round(player1, player2)
+        }.to change{player2.history}.from([]).to(expected_history)
+      end
+    end
+
+    context "first players always cooperates, second always cheats" do
+
+      before do
+        Action.stub(:random_action).and_return(Action.cooperative)
+        player1
+        Action.stub(:random_action).and_return(Action.treacherous)
+        player2
+      end
+
+      it "sets the score of the first player to @round_length * SUCKER" do
+        tournament.play_round(player1, player2)
+        player1.score.should == round_length * Tournament::SUCKER
+      end
+      it "sets the score of the second player to @round_length * TEMPTATION" do
+        expect{
+          tournament.play_round(player1, player2)
+        }.to change{player2.score}.from(0).to(round_length * Tournament::TEMPTATION)
+      end
+      it "updates the history of player 1 with the actions he took" do
+        expected_history = (1..4).map{|i| Action.cooperative}
+        expect{
+          tournament.play_round(player1, player2)
+        }.to change{player1.history}.from([]).to(expected_history)
+      end
+      it "updates the history of player 2 with the actions he took" do
+        expected_history = (1..4).map{|i| Action.treacherous}
+        expect{
+          tournament.play_round(player1, player2)
+        }.to change{player2.history}.from([]).to(expected_history)
+      end
+    end
+  end
 end

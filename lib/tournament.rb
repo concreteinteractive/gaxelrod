@@ -13,6 +13,11 @@ class Tournament
 
   MUTATION_ERROR_RATE = 0.1
 
+  REWARD = 3
+  TEMPTATION = 5
+  SUCKER = 0
+  PUNISHMENT = 1
+
   def initialize(observer, options = {})
     @observer = observer
     @round_length = options[:round_length] || DEFAULT_ROUND_LENGTH

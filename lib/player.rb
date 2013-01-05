@@ -11,11 +11,6 @@ class Player
   # 'global' counter to generate sequential ids for the Player instances:
   @@current_player_id = 0
 
-  REWARD = 3
-  TEMPTATION = 5
-  SUCKER = 0
-  PUNISHMENT = 1
-
   # Creates a player with a random chromosome and a random location.
   def initialize(history_length, x = nil, y = nil)
     @id = Player.next_id
@@ -125,9 +120,9 @@ class Player
 
   def count!(self_action, other_action)
     if self_action.cooperative?
-      @score += REWARD if other_action.cooperative?
+      @score += other_action.cooperative? ? Tournament::REWARD : Tournament::SUCKER
     else
-      @score += other_action.cooperative? ? TEMPTATION : PUNISHMENT
+      @score += other_action.cooperative? ? Tournament::TEMPTATION : Tournament::PUNISHMENT
     end
   end
 
