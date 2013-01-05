@@ -80,6 +80,24 @@ describe "Population" do
     end
   end
 
+  describe "delegated methods" do
+    describe "each_index" do
+      it "executes the block for each player, yielding its index" do
+        player_indices = []
+        population.each_index { |i| player_indices << i }
+        player_indices.should == [0, 1, 2]
+      end
+    end
+    describe "[]" do
+      it "returns the player with the specified index" do
+        population[0].should == population.players[0]
+      end
+      it "returns the players specified by the range" do
+        population[1..-1].should == population.players[1..-1]
+      end
+    end
+  end
+
   describe "private method scores" do
     it "returns an array with the scores of the players" do
       population.send(:scores).should == [0, 0, 0]

@@ -73,7 +73,7 @@ class Player
      Player.reproduce_from(self, partner, partner_a, self_b)]
   end
 
-  def mutate
+  def mutate!
     mutation_point = rand(@chromosome.size)
     @chromosome[mutation_point] = Action.random_action
   end

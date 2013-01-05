@@ -1,3 +1,4 @@
+require 'population'
 require 'player'
 
 # Implements the whole tournament. It has a population of players
@@ -10,7 +11,7 @@ class Tournament
   DEFAULT_ROUND_LENGTH = 64
   DEFAULT_MAX_GENERATIONS = 200000
 
-  def initialize(observer, options)
+  def initialize(observer, options = {})
     @observer = observer
     @round_length = options[:round_length] || DEFAULT_ROUND_LENGTH
     @population = Population.new(options[:num_players] || DEFAULT_NUM_PLAYERS,
@@ -49,7 +50,7 @@ class Tournament
     fittest.each do |player|
       mate = player.get_partner_from(fittest)
       child1, child2 = player.cross_with(mate)
-      next_generation += [child1.mutate, child2.mutate]
+      next_generation += [child1.mutate!, child2.mutate!]
     end
     @population.replace_players_with(next_generation)
     @num_generations += 1
@@ -59,12 +60,12 @@ class Tournament
   # a partner is selected with a probability based on the distance between the
   # players.
   def select_players_for_round
-    partners = []
-    @population.each_index do |i|
+    couples = []
+    (0..@population.size-2).each do |i|
       player = @population[i]
-      partners += [player, player.get_partner_from(@population[i+1..-1])]
+      couples << [player, player.get_partner_from(@population[i+1..-1])]
     end
-    partners
+    couples
   end
 
   def criterion_reached

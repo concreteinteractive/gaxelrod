@@ -163,7 +163,7 @@ describe "Player" do
 
     end
 
-    describe "mutate" do
+    describe "mutate!" do
 
       before do
         Action.stub(:random_action).and_return(Action.cooperative)
@@ -180,7 +180,7 @@ describe "Player" do
 
         it "changes the chromosome at the specified position" do
           expect {
-            @player.mutate
+            @player.mutate!
           }.to change{@player.chromosome[@mutation_point]}
         end
       end
@@ -193,7 +193,7 @@ describe "Player" do
 
         it "changes the chromosome at the first position" do
           expect {
-            @player.mutate
+            @player.mutate!
           }.to change{@player.chromosome[@mutation_point]}
         end
       end
@@ -206,7 +206,7 @@ describe "Player" do
 
         it "changes the chromosome at the last position" do
           expect {
-            @player.mutate
+            @player.mutate!
           }.to change{@player.chromosome[@mutation_point]}
         end
       end

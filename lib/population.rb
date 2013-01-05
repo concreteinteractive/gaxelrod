@@ -1,5 +1,8 @@
 class Population
 
+  extend Forwardable
+  def_delegators :@players, :[], :each_index, :size
+
   attr_reader :history_length
   attr_accessor :players
 
@@ -16,10 +19,6 @@ class Population
     UniqLattice.instance.calculate_distances
   end
 
-  def size
-    @players.size
-  end
-
   # Select players with a probability based on their score ranking
   # (roulette wheel selection, aka stochastic sampling with replacement).
   def select_fittest
@@ -31,22 +30,11 @@ class Population
     fittest
   end
 
+
   private
 
   def scores
     @players.map{ |player| player.score }
-  end
-
-  def normalized_scores
-    total = self.total_score
-    @players.map{ |player| player.score/total }
-  end
-
-  def total_score
-    @players.inject(0) do |total, player|
-      total += player.score
-      total.to_f
-    end
   end
 
 end
