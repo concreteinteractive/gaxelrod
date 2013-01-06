@@ -29,11 +29,11 @@ class Tournament
 
   def evolve
     until criterion_reached
-      @observer.notify_state(@population)
+      @observer.notify_state(@population, @num_generations)
       play_one_cycle
       reproduce(@population.select_fittest)
     end
-    @observer.notify_end(@population)
+    @observer.notify_end(@population, @num_generations)
   end
 
   # In one cycle, each player plays one Round with every other player: with

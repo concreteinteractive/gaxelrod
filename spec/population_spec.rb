@@ -92,6 +92,15 @@ describe "Population" do
     end
   end
 
+  describe "total_score" do
+    before do
+      Player.any_instance.stub(:score).and_return(3)
+    end
+    it "returns the sum of the scores of each player" do
+      population.total_score.should == 9
+    end
+  end
+
   describe "delegated methods" do
     describe "each_index" do
       it "executes the block for each player, yielding its index" do

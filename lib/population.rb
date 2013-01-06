@@ -34,6 +34,13 @@ class Population
     @players.size > array.size
   end
 
+  def total_score
+    @players.inject(0) do |sum, player|
+      sum += player.score
+      sum
+    end
+  end
+
   private
 
   def scores
