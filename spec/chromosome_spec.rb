@@ -29,7 +29,7 @@ describe "Chromosome" do
     describe "create_randomly" do
       it "creates a Chromosome and fills it with random actions" do
         random_chr = Chromosome.create_randomly(2)
-        random_chr.size.should == 16
+        random_chr.size.should == 16+2
         random_chr.chromosome.each {|action| action.class.should == Action}
       end
     end
@@ -51,11 +51,12 @@ describe "Chromosome" do
 
     before do
       @chromosome = Chromosome.create_randomly(2)
-      @action0000 = @chromosome.chromosome[0]   #0 = 0000 binary
-      @action1000 = @chromosome.chromosome[8]   #8 = 1000 binary
-      @action1001 = @chromosome.chromosome[9]   #9 = 1001 binary
-      @action1111 = @chromosome.chromosome[15]  #15= 1111 binary
+      @action0000 = @chromosome[0]   #0 = 0000 binary
+      @action1000 = @chromosome[8]   #8 = 1000 binary
+      @action1001 = @chromosome[9]   #9 = 1001 binary
+      @action1111 = @chromosome[15]  #15= 1111 binary
 
+      @first_prehistoric_action = @chromosome[-1]
       Action.stub(:random_action).and_return(Action.cooperative)
     end
 
@@ -68,8 +69,8 @@ describe "Chromosome" do
       @chromosome.get_next_move([Action.cooperative, Action.cooperative],
                                 [Action.cooperative, Action.cooperative]).should == @action1111
     end
-    it "returns a random_action if any of the histories is not valid" do
-      @chromosome.get_next_move(@history1, @history2[0..1]).cooperative?.should be_true
+    it "returns a 'prehistoric' action if any of the histories is not valid" do
+      @chromosome.get_next_move(@history1, []).should == @first_prehistoric_action
     end
   end
 
@@ -206,7 +207,27 @@ describe "Chromosome" do
         @chromosome.send(:combine, @history2, @history1).should == "0100"
       end
     end
+
+    describe "get_prehistoric_action" do
+
+      let(:history_length) { @chromosome.instance_eval{@history_length} }
+
+      before do
+        @chromosome = Chromosome.create_randomly(2)
+        @chromosome[-(history_length+1)] = Action.cooperative
+        @chromosome[-(history_length+2)] = Action.treacherous
+        @chromosome[-(history_length+3)] = Action.cooperative
+      end
+      it "returns the chromosome entry specified by the shorter history's size" do
+        (0..history_length-1).each do |i|
+          @chromosome.send(:get_prehistoric_action, @history1, @history2[0..i])
+                     .should == @chromosome[-(i+2)]
+        end
+      end
+      it "returns the last chromosome entry if one history is empty" do
+        @chromosome.send(:get_prehistoric_action, @history1, [])
+                   .should == @chromosome[-1]
+      end
+    end
   end
-
-
 end

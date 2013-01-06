@@ -288,7 +288,7 @@ describe "Player" do
       it "adds the score of the current game to the player's score" do
         expect {
           player1.update(Action.cooperative, Action.cooperative)
-        }.to change{player1.score}.by(Player::REWARD)
+        }.to change{player1.score}.by(Tournament::REWARD)
       end
     end
 
@@ -309,22 +309,22 @@ describe "Player" do
       it "adds REWARD to the player's core if both action are cooperative" do
         expect{
           player1.send(:count!, Action.cooperative, Action.cooperative)
-        }.to change{player1.score}.by(Player::REWARD)
+        }.to change{player1.score}.by(Tournament::REWARD)
       end
       it "adds SUCKER to the player's core if first action is cooperative and second treacherous" do
         expect{
           player1.send(:count!, Action.cooperative, Action.treacherous)
-        }.to change{player1.score}.by(Player::SUCKER)
+        }.to change{player1.score}.by(Tournament::SUCKER)
       end
       it "adds TEMPTATION to the player's core if first action is treacherous and second cooperative" do
         expect{
           player1.send(:count!, Action.treacherous, Action.cooperative)
-        }.to change{player1.score}.by(Player::TEMPTATION)
+        }.to change{player1.score}.by(Tournament::TEMPTATION)
       end
       it "adds PUNISHMENT to the player's core if both action are treacherous" do
         expect{
           player1.send(:count!, Action.treacherous, Action.treacherous)
-        }.to change{player1.score}.by(Player::PUNISHMENT)
+        }.to change{player1.score}.by(Tournament::PUNISHMENT)
       end
     end
   end

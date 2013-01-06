@@ -28,7 +28,7 @@ class Chromosome
       combined_history = combine(history1, history2)
       @chromosome[ combined_history.to_i(2) ]
     else
-      Action.random_action
+      get_prehistoric_action(history1, history2)
     end
   end
 
@@ -54,6 +54,8 @@ class Chromosome
     (2**(@history_length*2)).times do
       @chromosome << Action.random_action
     end
+    # add prehistoric action:
+    @history_length.times { @chromosome << Action.random_action }
   end
 
   def to_s
@@ -77,4 +79,12 @@ class Chromosome
     combined_and_converted
   end
 
+  # Looks up prehistoric actions from the tail of the
+  # chromosome array:
+  def get_prehistoric_action(history1, history2)
+    shorter_size = history1.size < history2.size ? history1.size : history2.size
+    shorter_size = @history_length if shorter_size > @history_length
+    index = shorter_size+1
+    @chromosome[-index]
+  end
 end
