@@ -3,6 +3,8 @@ require 'singleton'
 # Defines the lattice as a normal class (not as a singleton), for unit testing.
 class Lattice
 
+  attr_reader :players
+
   def initialize
     @players = {}
   end
@@ -12,8 +14,9 @@ class Lattice
     @players[element.id] = element
   end
 
-  def add_between(child, point1, point2)
-    child.x, child.y = random_point_between(point1, point2)
+  def add_around(child, player1, player2)
+    player = rand < 0.5 ? player1 : player2
+    child.x, child.y = random_point_near(player)
     add(child)
   end
 
@@ -34,9 +37,15 @@ class Lattice
     @players.delete(player.id)
   end
 
-  def calculate_distances
+  def keep_only(new_players)
+    new_player_ids = new_players.map{|player| player.id }
+    @players.keep_if { |player_id, element| new_player_ids.include? player_id }
+  end
+
+  def calculate_distances(reset = true)
     #TODO calculates twice as many distances as necessary!
     @players.each_value do |element1|
+      element1.distances = {} if reset
       @players.each_value do |element2|
         if element1 != element2
           element1.distances[element2.id] = calculate_distance(element1.point, element2.point)
@@ -64,23 +73,31 @@ class Lattice
 
   private
 
-  # rp = point1 + (point2-point1)/2 + randomly_scale( rotate90( (point2-point1)/2 )
-  def random_point_between(point1, point2)
+  # Returns a point that somewhere within a circle with center (p1-p2)/2
+  # and radius p1-p2.
+  # If this circle was smaller, the points will lump together over time, so that all
+  # player will converge on a single point.
+  # @deprecated
+  def random_point_around(point1, point2)
     half_way = [point2.first - point1.first, point2.last - point1.last]
     half_way = [half_way.first/2.0, half_way.last/2.0]
     center = [point1.first + half_way.first, point1.last + half_way.last]
+
     random_part = rand_scale( rotate90(half_way) )
     [center.first + random_part.first, center.last + random_part.last]
   end
 
   # Return a point in a circle with center player.point
-  # and radius |player.point, nearest_other_point|.
+  # and radius 2 * |player.point, nearest_other_point|.
+  # The radius needs to be twice the distance from the point to its
+  # nearest neighbor, otherwise the players will get closer and closer,
+  # circling in all on the same point!
   def random_point_near(player)
-    raise Exception("Player has no neighbors") if @players[player.id].distances.empty?
+    raise "Player has no neighbors" if @players[player.id].distances.empty?
     max_radius = @players[player.id].distances.values.sort.first
     # directly transforming random radius and angle to polar coords
     # distorts the sampling; need to correct (see uniformly sampling a disk).
-    radius = Math.sqrt(max_radius * rand)
+    radius = 2 * max_radius * Math.sqrt(rand)
     angle = 2 * Math::PI * rand
     dx = Math.cos(angle)*radius
     dy = Math.sin(angle)*radius

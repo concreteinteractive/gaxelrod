@@ -36,7 +36,7 @@ class Player
     def reproduce_from(player1, player2, chromosome_first_part, chromosome_second_part)
       child = Player.new(player1.history_length)
       child.chromosome = Chromosome.create_from(child.history_length, chromosome_first_part, chromosome_second_part)
-      UniqLattice.instance.add_between(child, player1.point,player2.point)
+      UniqLattice.instance.add_around(child, player1, player2)
       child
     end
 
@@ -87,6 +87,7 @@ class Player
   def mutate!
     mutation_point = rand(@chromosome.size)
     @chromosome[mutation_point] = Action.random_action
+    self
   end
 
   def point

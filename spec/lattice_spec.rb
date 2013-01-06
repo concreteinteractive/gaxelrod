@@ -58,26 +58,70 @@ describe "Lattice" do
       end
     end
 
-    describe "add_between" do
+    describe "keep_only" do
+      before do
+        @p1 = Player.new(2)
+        @p3 = Player.new(2)
+        @p2 = Player.new(2)
+        @lattice.add(@p1)
+        @lattice.add(@p2)
+        @lattice.add(@p3)
+        @lattice.calculate_distances
+      end
+
+      it "removes all player-elements that are not in keep-array" do
+        @lattice.keep_only([@p1, @p3])
+        @lattice.players.values.map{|element| element.player }
+                        .should == [@p1, @p3]
+      end
+      it "removes no player-elements if the keep-array includes all Lattice players" do
+        @lattice.keep_only([@p1, @p3, @p2])
+        @lattice.players.values.map{|element| element.player }
+                .sort_by{|player| player.id}.should == [@p1, @p2, @p3].sort_by{|player| player.id}
+      end
+      it "removes all player-elements if the keep-array is empty" do
+        @lattice.keep_only([])
+        @lattice.players.empty?.should be_true
+      end
+    end
+
+    describe "add_around" do
 
       before do
-        @point1 = [1, 2]
-        @point2 = [3, 2]
-        @child = Player.new(2, 0, 0)
+        @player1 = Player.new(2, 1, 2)
+        @player2 = Player.new(2, 3, 2)
+        @child = Player.new(2, -10, -10)
+        @lattice.add(@player1)
+        @lattice.add(@player2)
+        @lattice.add(Player.new(2, 4, 2))
+        @lattice.calculate_distances
       end
 
       it "adds a player" do
         expect {
-          @lattice.add_between(@child, @point1, @point2)
+          @lattice.add_around(@child, @player1, @player2)
         }.to change{@lattice.instance_eval{@players}.size}.by(1)
       end
 
-      it "adds a player between 2 others" do
-        @lattice.add_between(@child, @point1, @point2)
-        # (further testing of where the child.x and .y are: see specs for random_point_between)
-        @child.x.should_not == 0
-        @child.y.should_not == 0
+      context "the first player is (randomly) selected" do
+        before { Lattice.any_instance.stub(:rand).and_return(0.2) }
+        it "adds a player in a circle around one of the 2 passed in players" do
+          @lattice.add_around(@child, @player1, @player2)
+          # (further testing of where the child.x and .y are: see specs for random_point_near)
+          dist = @lattice.calculate_distance(@child.point, @player1.point)
+          dist.should < 4 # twice the distance between player1 and its nearest neighbor, player2
+        end
       end
+      context "the second player is (randomly) selected" do
+        before { Lattice.any_instance.stub(:rand).and_return(0.7) }
+        it "adds a player in a circle around one of the 2 passed in players" do
+          @lattice.add_around(@child, @player1, @player2)
+          # (further testing of where the child.x and .y are: see specs for random_point_near)
+          dist = @lattice.calculate_distance(@child.point, @player2.point)
+          dist.should < 2 # twice the distance between player2 and its nearest neighbor (third player)
+        end
+      end
+
     end
 
     describe "add_near" do
@@ -96,10 +140,10 @@ describe "Lattice" do
         }.to change{@lattice.instance_eval{@players}.size}.by(1)
       end
 
-      it "adds a player not farther than the player's nearest neighbor" do
+      it "adds a player not farther than twice the distance to the player's nearest neighbor" do
         @lattice.add_near(@child, @player)
         dist = @lattice.calculate_distance(@child.point, @player.point)
-        dist.should <= 2
+        dist.should <= 4
       end
     end
 
@@ -188,21 +232,9 @@ describe "Lattice" do
         end
       end
 
-      describe "random_point_between" do
-        let(:p1) {[1,2]}
-        let(:p2) {[3,2]}
-        let(:point) {@lattice.send(:random_point_between, p1, p2)}
-        it "returns a point that is on a line that is perpendicular to the line segment p1--p2 and runs through its center" do
-          point.first.should be_within(0.001).of(2)
-        end
-        it "returns a point that is not further away from the line segment p1--p2 than have its length" do
-          point.last.should be_within(1).of(2)
-        end
-      end
-
       describe "random_point_near" do
         before do
-          Lattice.any_instance.stub(:rand).and_return(0.5, 0.25)
+          Lattice.any_instance.stub(:rand).and_return(1, 0.25)
           @player = Player.new(2, 2, 2)
           @lattice.add(@player)
           @lattice.add(Player.new(2, 4, 2))
@@ -211,8 +243,8 @@ describe "Lattice" do
         end
         it "returns a point not farther away from self than its nearest player" do
           point = @lattice.send(:random_point_near, @player)
-          point.first.should == @player.x
-          point.last.should  == @player.y + 1
+          point.first.should be_within(0.0001).of(@player.x)
+          point.last.should be_within(0.0001).of(@player.y + 4)
         end
       end
     end

@@ -57,11 +57,11 @@ class Tournament
     fittest.each do |player|
       mate = player.get_partner_from(fittest)
       if mate.nil?
-        break unless add_next_child(next_generation, player.mutated_clone)
+        break unless add_next_child_to(next_generation, player.mutated_clone)
       else
         child1, child2 = player.cross_with(mate)
-        break unless add_next_child(next_generation, child1.mutate!)
-        break unless add_next_child(next_generation, child2.mutate!)
+        break unless add_next_child_to(next_generation, child1.mutate!)
+        break unless add_next_child_to(next_generation, child2.mutate!)
       end
     end
     @population.replace_players_with(next_generation)
@@ -88,7 +88,7 @@ class Tournament
 
   private
 
-  def add_next_child(next_generation, child)
+  def add_next_child_to(next_generation, child)
     if @population > next_generation
       next_generation << child
       true

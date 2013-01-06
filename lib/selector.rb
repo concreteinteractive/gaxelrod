@@ -21,6 +21,7 @@ module Selector
     r = rand * cumulative_probs.keys.last
     cumulative_probs.select!{|key| key >= r}
     cumulative_probs[cumulative_probs.keys.first]
+    # same as cumulative_probs.first.last ?
   end
 
   # Does the same as pick_big_one, but with "inversed" probabilities, so the larger
@@ -36,6 +37,7 @@ module Selector
   def self.inverse(probabilities)
     sum = 0
     inversed = probabilities.map do |prob|
+      raise RangeError.new("probability can't be 0") if prob == 0
       inv = 1.0/prob
       sum += inv
       inv

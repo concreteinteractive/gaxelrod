@@ -56,6 +56,11 @@ describe "Player" do
       let(:playerB) {Player.create(2)}
       let(:child){Player.reproduce_from(playerA, playerB, chr1, chr2)}
 
+      before do
+        playerA; playerB
+        UniqLattice.instance.calculate_distances
+      end
+
       it "returns a player with the same history_length as the parents" do
         child.should be_a Player
         child.history_length.should == 2
@@ -66,7 +71,7 @@ describe "Player" do
       end
       it "adds the player to the Lattice" do
         # need to instantiate these players already, so they are added to Lattice before expect{} runs:
-        playerA; playerB
+        #playerA; playerB
         expect{
           Player.reproduce_from(playerA, playerB, chr1, chr2)
         }.to change{UniqLattice.instance.instance_eval{@players.size}}.by(1)
@@ -172,6 +177,7 @@ describe "Player" do
       before do
         @player1 = Player.create(2)
         @player2 = Player.create(2)
+        UniqLattice.instance.calculate_distances
       end
 
       # TODO test with other random values: 0 and history_length

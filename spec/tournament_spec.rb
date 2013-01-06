@@ -82,6 +82,12 @@ describe "Tournament" do
           tournament.reproduce(fittest)
         }.to change { tournament.instance_eval{@num_generations} }.by(1)
       end
+      it "doesn't change the number of players on the Lattice" do
+        size_before = UniqLattice.instance.players.size
+        tournament.reproduce(fittest)
+        UniqLattice.instance.players.size.should == size_before
+        # expect goes crazy here for some reasons...
+      end
     end
 
     context "player's within fittest array are all identical" do
@@ -102,6 +108,11 @@ describe "Tournament" do
         expect {
           tournament.reproduce(fittest)
         }.to change { tournament.instance_eval{@num_generations} }.by(1)
+      end
+      it "doesn't change the number of players on the Lattice" do
+        expect {
+          tournament.reproduce(fittest)
+        }.not_to change {UniqLattice.instance.players.size}
       end
     end
   end
@@ -172,6 +183,34 @@ describe "Tournament" do
           tournament.play_round(player1, player2)
         }.to change{player2.history}.from([]).to(expected_history)
       end
+    end
+  end
+
+  describe "Run a tournament with evolve" do
+    let(:observer) do
+      class Runner
+        def notify_state(population, generation)
+          puts "Generation nr #{generation}: Total score is #{population.total_score}"
+        end
+
+        def notify_end(population, generation)
+          puts "Simulation done:"
+          puts "Generation nr #{generation}: Total score is #{population.total_score}"
+        end
+      end
+      Runner.new
+    end
+    let(:options) do
+      options = {}
+      options[:round_length] = 64
+      options[:num_players]  = 20
+      options[:history_length] = 3
+      options[:max_generations] = 1000
+      options
+    end
+    it "runs a tournament" do
+      tournament = Tournament.new(observer, options)
+      tournament.evolve
     end
   end
 end

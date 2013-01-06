@@ -1,13 +1,13 @@
-#lib = File.dirname(File.absolute_path(__FILE__))
-#Dir.glob(lib + './*.rb'){|file| require file}
+lib = File.dirname(File.absolute_path(__FILE__))
+Dir.glob(lib + './*.rb'){|file| require file}
 
-require_relative 'tournament'
-require_relative 'population'
-require_relative 'player'
-require_relative 'selector'
-require_relative 'lattice'
-require_relative 'chromosome'
-require_relative 'action'
+#require_relative 'tournament'
+#require_relative 'population'
+#require_relative 'player'
+#require_relative 'selector'
+#require_relative 'lattice'
+#require_relative 'chromosome'
+#require_relative 'action'
 
 module Simulation
 

@@ -14,7 +14,8 @@ class Population
   end
 
   def replace_players_with(new_players)
-    @players.each { |p| UniqLattice.instance.remove(p) }
+    #@players.each { |p| UniqLattice.instance.remove(p) }
+    UniqLattice.instance.keep_only(new_players)
     @players = new_players
     UniqLattice.instance.calculate_distances
   end
