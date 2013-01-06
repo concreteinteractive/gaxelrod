@@ -3,6 +3,8 @@ require 'singleton'
 # Defines the lattice as a normal class (not as a singleton), for unit testing.
 class Lattice
 
+  MIN_DISTANCE = 0.001
+
   attr_reader :players
 
   def initialize
@@ -55,9 +57,9 @@ class Lattice
   end
 
   def calculate_distance(point1, point2)
-    a = (point2.first - point1.first)**2
-    b = (point2.last - point1.last)**2
-    Math.sqrt(a+b)
+    dx = (point2.first - point1.first)**2
+    dy = (point2.last - point1.last)**2
+    Math.sqrt(dx+dy)
   end
 
   def distances_between(player, candidates)
@@ -101,6 +103,8 @@ class Lattice
     angle = 2 * Math::PI * rand
     dx = Math.cos(angle)*radius
     dy = Math.sin(angle)*radius
+    dx = rand if dx < MIN_DISTANCE
+    dy = rand if dy < MIN_DISTANCE
     [player.x + dx, player.y + dy]
   end
 

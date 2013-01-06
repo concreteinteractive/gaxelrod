@@ -29,8 +29,8 @@ class Tournament
 
   def evolve
     until criterion_reached
-      @observer.notify_state(@population, @num_generations)
       play_one_cycle
+      @observer.notify_state(@population, @num_generations)
       reproduce(@population.select_fittest)
     end
     @observer.notify_end(@population, @num_generations)
@@ -57,11 +57,11 @@ class Tournament
     fittest.each do |player|
       mate = player.get_partner_from(fittest)
       if mate.nil?
-        break unless add_next_child_to(next_generation, player.mutated_clone)
+        break unless add_child_to(next_generation, player.mutated_clone)
       else
         child1, child2 = player.cross_with(mate)
-        break unless add_next_child_to(next_generation, child1.mutate!)
-        break unless add_next_child_to(next_generation, child2.mutate!)
+        break unless add_child_to(next_generation, child1.mutate!)
+        break unless add_child_to(next_generation, child2.mutate!)
       end
     end
     @population.replace_players_with(next_generation)
@@ -88,7 +88,7 @@ class Tournament
 
   private
 
-  def add_next_child_to(next_generation, child)
+  def add_child_to(next_generation, child)
     if @population > next_generation
       next_generation << child
       true
