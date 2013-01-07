@@ -1,7 +1,7 @@
 class Population
 
   extend Forwardable
-  def_delegators :@players, :[], :each_index, :each, :size
+  def_delegators :@players, :[], :each_index, :each, :size, :sort_by
 
   attr_reader :history_length
   attr_accessor :players

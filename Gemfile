@@ -12,6 +12,7 @@ gem 'haml-rails'
 gem 'jquery-rails'
 gem "factory_girl_rails"
 
+gem 'gga4r'
 
 # Gems used only for assets and not required
 # in production environments by default.
