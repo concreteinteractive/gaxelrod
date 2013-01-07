@@ -28,10 +28,14 @@ class Tournament
   end
 
   def evolve
-    until criterion_reached
+    while true
       play_one_cycle
       @observer.notify_state(@population, @num_generations)
-      reproduce(@population.select_fittest)
+      if criterion_reached
+        break
+      else
+        reproduce(@population.select_fittest)
+      end
     end
     @observer.notify_end(@population, @num_generations)
   end

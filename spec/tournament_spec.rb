@@ -191,11 +191,19 @@ describe "Tournament" do
       class Runner
         def notify_state(population, generation)
           puts "Generation nr #{generation}: Total score is #{population.total_score}"
+          sorted_players = population.sort_by{|p| p.score }
+          sorted_players[-4..-1].each do |p|
+            puts "Score: #{p.score}; #{p.chromosome}"
+          end
         end
 
         def notify_end(population, generation)
           puts "Simulation done:"
           puts "Generation nr #{generation}: Total score is #{population.total_score}"
+          sorted_players = population.sort_by{|p| -p.score }
+          sorted_players.each do |player|
+            puts "Score: #{player.score}  #{player.chromosome}"
+          end
         end
       end
       Runner.new
@@ -203,9 +211,9 @@ describe "Tournament" do
     let(:options) do
       options = {}
       options[:round_length] = 64
-      options[:num_players]  = 20
+      options[:num_players]  = 200
       options[:history_length] = 3
-      options[:max_generations] = 1000
+      options[:max_generations] = 400
       options
     end
     it "runs a tournament" do
