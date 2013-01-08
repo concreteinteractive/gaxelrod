@@ -1,7 +1,10 @@
 gaxelrod
 ========
 
-Ruby implementation of Axelrod's prisoner's dilemma simulation, with a genetic algorithm to evolve strategies
+Ruby implementation of Axelrod's prisoner's dilemma simulation, with a genetic
+algorithm to evolve strategies. The players in this version have a location on
+a lattice. The algorithm chooses players for a game based on distance (nearer
+players have higher probability to be chosen) and mating partner as well.
 
 
 Output of a run with
@@ -10,8 +13,6 @@ history-length 3,
 round-length: 64
 200 generations:
 
-/Users/lukasnick/.rvm/rubies/ruby-1.9.3-p125/bin/ruby -e $stdout.sync=true;$stderr.sync=true;load($0=ARGV.shift) /Users/lukasnick/.rvm/gems/ruby-1.9.3-p125/bin/rspec /Users/lukasnick/workspaces/gaxelrod/spec/tournament_spec.rb --require teamcity/spec/runner/formatter/teamcity/formatter --format Spec::Runner::Formatter::TeamcityFormatter --example "Tournament Run a tournament with evolve runs a tournament"
-Testing started at 18:07 ...
 Generation nr 0: Total score is 2856577
 Score: 42106; CTTCCTTCTCTCTCCCTTTTCTTTTCTTTTTCTCTTTCTTCTTTCCTCCTCTCTTCCCCCCCCTTTC
 Score: 42756; CTCCTTCTTCTCCTCTTCTTCCCCTCCTCTTTTTCCCTTTTTCCTTCCTCTCTCTTCTTTTTTTCCC

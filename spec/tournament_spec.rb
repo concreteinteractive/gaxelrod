@@ -211,9 +211,9 @@ describe "Tournament" do
     let(:options) do
       options = {}
       options[:round_length] = 64
-      options[:num_players]  = 30
+      options[:num_players]  = 20
       options[:history_length] = 3
-      options[:max_generations] = 400
+      options[:max_generations] = 200
       options
     end
     it "runs a tournament" do

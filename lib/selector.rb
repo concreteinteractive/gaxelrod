@@ -30,6 +30,10 @@ module Selector
     self.pick_big_one( inverse(probabilities) )
   end
 
+  def self.yes_with_probability(p)
+    rand > 1-p
+  end
+
   private
 
   # Calculate the inverse of each probability in probabilities,

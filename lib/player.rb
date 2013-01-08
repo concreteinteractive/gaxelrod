@@ -73,9 +73,14 @@ class Player
   end
 
   def cross_with(partner)
-    cross_point = rand(@chromosome.size)
-    self_a, self_b       = self.split_at(cross_point)
-    partner_a, partner_b = partner.split_at(cross_point)
+    if Selector.yes_with_probability(Tournament::CROSSOVER_RATE)
+      cross_point = rand(@chromosome.size)
+      self_a, self_b       = self.split_at(cross_point)
+      partner_a, partner_b = partner.split_at(cross_point)
+    else
+      self_a, self_b = [@chromosome[0..-1], []]
+      partner_a, partner_b = [partner.chromosome[0..-1], []]
+    end
     [Player.reproduce_from(self, partner, self_a, partner_b),
      Player.reproduce_from(self, partner, partner_a, self_b)]
   end
@@ -85,8 +90,10 @@ class Player
   end
 
   def mutate!
-    mutation_point = rand(@chromosome.size)
-    @chromosome[mutation_point] = Action.random_action
+    if Selector.yes_with_probability(Tournament::MUTATION_RATE)
+      mutation_point = rand(@chromosome.size)
+      @chromosome[mutation_point] = Action.random_action
+    end
     self
   end
 

@@ -93,6 +93,7 @@ describe "Player" do
         UniqLattice.instance.calculate_distances
         Player.any_instance.stub(:rand).and_return(0, 7, @chromosome_length-1)
         Action.stub(:random_action).and_return(Action.cooperative)
+        Selector.stub(:yes_with_probability).and_return(true)
       end
 
       it "adds the player to the Lattice" do
@@ -182,38 +183,58 @@ describe "Player" do
 
       # TODO test with other random values: 0 and history_length
 
-      context "Crosspoint in the middle" do
+      context "crossing takes place" do
+
         before do
-          @crosspoint = 8
-          Player.any_instance.stub(:rand).and_return(@crosspoint)
+          Selector.stub(:yes_with_probability).and_return(true)
         end
-        it "creates 2 new players whose chromosomes are a cross-over mix of the parents" do
-          child1, child2 = @player1.cross_with(@player2)
-          child1.chromosome[0..@crosspoint].should == @player1.chromosome[0..@crosspoint]
-          child1.chromosome[@crosspoint+1..-1].should == @player2.chromosome[@crosspoint+1..-1]
-          child2.chromosome[0..@crosspoint].should == @player2.chromosome[0..@crosspoint]
-          child2.chromosome[@crosspoint+1..-1].should == @player1.chromosome[@crosspoint+1..-1]
+
+        context "Crosspoint in the middle" do
+          before do
+            @crosspoint = 8
+            Player.any_instance.stub(:rand).and_return(@crosspoint)
+          end
+          it "creates 2 new players whose chromosomes are a cross-over mix of the parents" do
+            child1, child2 = @player1.cross_with(@player2)
+            child1.chromosome[0..@crosspoint].should == @player1.chromosome[0..@crosspoint]
+            child1.chromosome[@crosspoint+1..-1].should == @player2.chromosome[@crosspoint+1..-1]
+            child2.chromosome[0..@crosspoint].should == @player2.chromosome[0..@crosspoint]
+            child2.chromosome[@crosspoint+1..-1].should == @player1.chromosome[@crosspoint+1..-1]
+          end
+        end
+        context "Crosspoint at first position" do
+          before do
+            @crosspoint = 0
+            Player.any_instance.stub(:rand).and_return(@crosspoint)
+          end
+          it "creates 2 new players whose chromosomes are a cross-over mix of the parents" do
+            child1, child2 = @player1.cross_with(@player2)
+            child1.chromosome[0,1].should == @player1.chromosome[0,1]
+            child1.chromosome[1..-1].should == @player2.chromosome[1..-1]
+            child2.chromosome[0,1].should == @player2.chromosome[0,1]
+            child2.chromosome[1..-1].should == @player1.chromosome[1..-1]
+          end
+        end
+        context "Crosspoint at last position" do
+          before do
+            @crosspoint = @player1.chromosome.size-1
+            Player.any_instance.stub(:rand).and_return(@crosspoint)
+          end
+          it "creates 2 new players whose chromosomes are a cross-over mix of the parents" do
+            child1, child2 = @player1.cross_with(@player2)
+            child1.chromosome[0..-1].should == @player1.chromosome[0..-1]
+            child2.chromosome[0..-1].should == @player2.chromosome[0..-1]
+          end
         end
       end
-      context "Crosspoint at first position" do
+
+      context "crossing doesn't take place" do
+
         before do
-          @crosspoint = 0
-          Player.any_instance.stub(:rand).and_return(@crosspoint)
+          Selector.stub(:yes_with_probability).and_return(false)
         end
-        it "creates 2 new players whose chromosomes are a cross-over mix of the parents" do
-          child1, child2 = @player1.cross_with(@player2)
-          child1.chromosome[0,1].should == @player1.chromosome[0,1]
-          child1.chromosome[1..-1].should == @player2.chromosome[1..-1]
-          child2.chromosome[0,1].should == @player2.chromosome[0,1]
-          child2.chromosome[1..-1].should == @player1.chromosome[1..-1]
-        end
-      end
-      context "Crosspoint at last position" do
-        before do
-          @crosspoint = @player1.chromosome.size-1
-          Player.any_instance.stub(:rand).and_return(@crosspoint)
-        end
-        it "creates 2 new players whose chromosomes are a cross-over mix of the parents" do
+
+        it "creates children by copying the parents' chromosome" do
           child1, child2 = @player1.cross_with(@player2)
           child1.chromosome[0..-1].should == @player1.chromosome[0..-1]
           child2.chromosome[0..-1].should == @player2.chromosome[0..-1]
@@ -224,49 +245,68 @@ describe "Player" do
 
     describe "mutate!" do
 
-      before do
-        Action.stub(:random_action).and_return(Action.cooperative)
-        # create a player with only treacherous actions in its chromosome:
-        @player = Player.new(2)
-        actions = (0..7).inject([]){|result,nr| result << Action.treacherous; result}
-        @player.chromosome = Chromosome.create_from(2, actions[0..-2], actions[-1..-1])
-      end
-      describe "Mutate at a center position" do
+      context "a mutation happens" do
+
         before do
-          @mutation_point = 8
-          Player.any_instance.stub(:rand).and_return(@mutation_point)
+          Selector.stub(:yes_with_probability).and_return(true)
         end
 
-        it "changes the chromosome at the specified position" do
-          expect {
-            @player.mutate!
-          }.to change{@player.chromosome[@mutation_point]}
+        before do
+          Action.stub(:random_action).and_return(Action.cooperative)
+          # create a player with only treacherous actions in its chromosome:
+          @player = Player.new(2)
+          actions = (0..7).inject([]){|result,nr| result << Action.treacherous; result}
+          @player.chromosome = Chromosome.create_from(2, actions[0..-2], actions[-1..-1])
+        end
+
+        describe "Mutate at a center position" do
+          before do
+            @mutation_point = 8
+            Player.any_instance.stub(:rand).and_return(@mutation_point)
+          end
+
+          it "changes the chromosome at the specified position" do
+            expect {
+              @player.mutate!
+            }.to change{@player.chromosome[@mutation_point]}
+          end
+        end
+
+        describe "Mutate at the first position" do
+          before do
+            @mutation_point = 0
+            Player.any_instance.stub(:rand).and_return(@mutation_point)
+          end
+
+          it "changes the chromosome at the first position" do
+            expect {
+              @player.mutate!
+            }.to change{@player.chromosome[@mutation_point]}
+          end
+        end
+
+        describe "Mutate at the last position" do
+          before do
+            @mutation_point = @player.chromosome.size-1
+            Player.any_instance.stub(:rand).and_return(@mutation_point)
+          end
+
+          it "changes the chromosome at the last position" do
+            expect {
+              @player.mutate!
+            }.to change{@player.chromosome[@mutation_point]}
+          end
         end
       end
 
-      describe "Mutate at the first position" do
+      context "no mutation happens" do
         before do
-          @mutation_point = 0
-          Player.any_instance.stub(:rand).and_return(@mutation_point)
+          Selector.stub(:yes_with_probability).and_return(false)
+          @player = Player.create(2)
         end
 
-        it "changes the chromosome at the first position" do
-          expect {
-            @player.mutate!
-          }.to change{@player.chromosome[@mutation_point]}
-        end
-      end
-
-      describe "Mutate at the last position" do
-        before do
-          @mutation_point = @player.chromosome.size-1
-          Player.any_instance.stub(:rand).and_return(@mutation_point)
-        end
-
-        it "changes the chromosome at the last position" do
-          expect {
-            @player.mutate!
-          }.to change{@player.chromosome[@mutation_point]}
+        it "doesn't change the chromosome" do
+          expect{@player.mutate!}.not_to change{@player.chromosome}
         end
       end
     end

@@ -234,7 +234,8 @@ describe "Lattice" do
 
       describe "random_point_near" do
         before do
-          Lattice.any_instance.stub(:rand).and_return(1, 0.25)
+          # TODO use less special values for rand!
+          Lattice.any_instance.stub(:rand).and_return(1, 0.25, 0)
           @player = Player.new(2, 2, 2)
           @lattice.add(@player)
           @lattice.add(Player.new(2, 4, 2))

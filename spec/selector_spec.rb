@@ -88,4 +88,30 @@ describe "Selector" do
     end
   end
 
+  describe "yes_with_probability" do
+
+    context "probability is 0" do
+      it "returns almost never true" do
+        Selector.stub(:rand).and_return(1.0e-20,0.5,1-1.0e-20)
+        3.times {Selector.yes_with_probability(0).should be_false}
+      end
+    end
+    context "probability is 1" do
+      it "returns almost always true" do
+        Selector.stub(:rand).and_return(1.0e-20,0.5,1-1.0e-20)
+        3.times {Selector.yes_with_probability(1).should be_true}
+      end
+    end
+    context "probability is 0.5" do
+      it "returns true if the random number is greater than 0.5" do
+        Selector.stub(:rand).and_return(0.51)
+        Selector.yes_with_probability(0.5).should be_true
+      end
+      it "returns false if the random number is smaller than 0.5" do
+        Selector.stub(:rand).and_return(0.49)
+        Selector.yes_with_probability(0.5).should be_false
+      end
+    end
+  end
+
 end
