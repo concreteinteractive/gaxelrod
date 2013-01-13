@@ -22,12 +22,18 @@ module Simulation
 
 end
 
-options = {}
-options[:round_length] = 64
-options[:num_players]  = 20
-options[:history_length] = 3
-options[:max_generations] = 1000
+module SimulationRunner
 
-tournament = Tournament.new(Simulation, options)
-tournament.evolve
+  def default_options
+    options = {}
+    options[:round_length] = 64
+    options[:num_players]  = 20
+    options[:history_length] = 3
+    options[:max_generations] = 1000
+  end
 
+  def run
+    tournament = Tournament.new(Simulation, default_options)
+    tournament.evolve
+  end
+end

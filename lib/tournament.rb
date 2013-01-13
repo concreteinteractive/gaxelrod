@@ -9,7 +9,7 @@ class Tournament
   DEFAULT_NUM_PLAYERS = 20
   DEFAULT_HISTORY_LENGTH = 3
   DEFAULT_ROUND_LENGTH = 64
-  DEFAULT_MAX_GENERATIONS = 200000
+  DEFAULT_MAX_GENERATIONS = 77
 
   CROSSOVER_RATE = 0.2
   MUTATION_RATE = 0.1
@@ -20,7 +20,8 @@ class Tournament
   SUCKER = 0
   PUNISHMENT = 1
 
-  def initialize(observer, options = {})
+  def initialize(observer, opts = {})
+    options = convert_option_keys_to_sym(opts)
     @observer = observer
     @round_length = options[:round_length] || DEFAULT_ROUND_LENGTH
     @population = Population.new(options[:num_players] || DEFAULT_NUM_PLAYERS,
@@ -89,7 +90,7 @@ class Tournament
   end
 
   def criterion_reached
-     @num_generations >= @max_generations
+     @num_generations >= @max_generations-1
   end
 
   private
@@ -100,6 +101,13 @@ class Tournament
       true
     else
       false
+    end
+  end
+
+  def convert_option_keys_to_sym(options)
+    options.inject({}) do |converted, pair|
+      converted[pair.first.to_sym] = pair.last
+      converted
     end
   end
 

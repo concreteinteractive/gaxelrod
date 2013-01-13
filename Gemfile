@@ -1,6 +1,6 @@
 source 'https://rubygems.org'
 
-gem 'rails', '3.2.3'
+gem 'rails', '3.2.11'
 
 # Bundle edge Rails instead:
 # gem 'rails', :git => 'git://github.com/rails/rails.git'
@@ -12,7 +12,9 @@ gem 'haml-rails'
 gem 'jquery-rails'
 gem "factory_girl_rails"
 
-gem 'gga4r'
+gem 'sidekiq'
+gem 'sinatra', require: false
+gem 'slim'
 
 # Gems used only for assets and not required
 # in production environments by default.
@@ -40,6 +42,8 @@ group :development, :test do
   gem 'guard-coffeescript'
   gem 'guard-livereload'
   gem 'jasmine'
+
+  gem 'gga4r' # just to have a look at it
 end
 
 # To use ActiveModel has_secure_password

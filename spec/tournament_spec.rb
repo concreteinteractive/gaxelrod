@@ -186,6 +186,25 @@ describe "Tournament" do
     end
   end
 
+  describe "private convert_option_keys_to_sym" do
+    context "options hash has symbol keys" do
+      let(:options) { {a: 1, b: 2, c:3} }
+      it "doesn't change the hash" do
+        expect{
+          tournament.send(:convert_option_keys_to_sym, options)
+        }.not_to change{options}
+      end
+    end
+    context "options hash has string keys" do
+      let(:options) { {'a' => 1, 'b' => 2, 'c' => 3} }
+      it "doesn't change the hash" do
+        converted = tournament.send(:convert_option_keys_to_sym, options)
+        converted.should == {a: 1, b: 2, c: 3}
+      end
+    end
+  end
+
+
   describe "Run a tournament with evolve" do
     let(:observer) do
       class Runner
@@ -211,9 +230,9 @@ describe "Tournament" do
     let(:options) do
       options = {}
       options[:round_length] = 64
-      options[:num_players]  = 20
+      options[:num_players]  = 17
       options[:history_length] = 3
-      options[:max_generations] = 200
+      options[:max_generations] = 21
       options
     end
     it "runs a tournament" do
@@ -222,3 +241,4 @@ describe "Tournament" do
     end
   end
 end
+
