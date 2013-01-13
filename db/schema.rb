@@ -11,19 +11,26 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20130113200328) do
+ActiveRecord::Schema.define(:version => 20130113214342) do
 
   create_table "agents", :force => true do |t|
+    t.integer  "generation_id"
     t.integer  "number"
     t.float    "x"
     t.float    "y"
     t.string   "chromosome"
     t.float    "score"
-    t.integer  "generation"
     t.string   "history"
-    t.boolean  "consumed"
-    t.datetime "created_at", :null => false
-    t.datetime "updated_at", :null => false
+    t.datetime "created_at",    :null => false
+    t.datetime "updated_at",    :null => false
+  end
+
+  create_table "generations", :force => true do |t|
+    t.integer  "number"
+    t.float    "score"
+    t.boolean  "consumed",   :default => false, :null => false
+    t.datetime "created_at",                    :null => false
+    t.datetime "updated_at",                    :null => false
   end
 
 end

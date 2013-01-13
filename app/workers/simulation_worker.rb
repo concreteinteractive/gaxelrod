@@ -8,18 +8,10 @@ class SimulationWorker
 
   def notify_state(population, generation)
     display(generation, population, 4)
-    population.players.each do |player|
-      Agent.create do |agent|
-        agent.number = player.id
-        agent.generation = generation
-        agent.chromosome = player.chromosome.to_s
-        agent.score = player.score
-        agent.x = player.x
-        agent.y = player.y
-        agent.history = player.history.map{|action| action.to_s}.join
-        agent.consumed = false
-      end
-    end
+    new_generation = Generation.create(number: generation,
+                                       score: population.total_score,
+                                       consumed: false)
+    population.players.each{|p| add_player(new_generation, p) }
   end
 
   def notify_end(population, generation)
@@ -34,6 +26,17 @@ class SimulationWorker
       info "Score: #{p.score}; #{p.chromosome}"
     end
 
+  end
+
+  def add_player(generation, player)
+    generation.agents.create do |agent|
+      agent.number = player.id
+      agent.chromosome = player.chromosome.to_s
+      agent.score = player.score
+      agent.x = player.x
+      agent.y = player.y
+      agent.history = player.history.map{|action| action.to_s}.join
+    end
   end
 
   def info(msg)

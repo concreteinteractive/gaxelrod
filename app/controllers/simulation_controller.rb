@@ -7,6 +7,10 @@ class SimulationController < ApplicationController
   end
 
   def next
+    render json: Generation.consume_next.as_json(
+        only: [:number, :score],
+        include: [agents: {only: [:number, :score, :chromosome, :x, :y]}]
+    )
   end
 
   private
@@ -21,7 +25,7 @@ class SimulationController < ApplicationController
   end
 
   def reset_db
-    Agent.all.each{|p| p.destroy }
+    Generation.all.each{|g| g.destroy }
   end
 
 
