@@ -1,0 +1,12 @@
+%h1 Repeated Prisoner Dilemma Game Simulation with Evolving Strategies
+
+%p
+  =link_to 'Start', '', {id: "start"}
+  %span#running running..
+
+.row
+  .cell
+    %canvas#lattice{width: 900, height: 600, resize: true}
+  .cell#result_list
+    %p Generations
+    %ul#generations

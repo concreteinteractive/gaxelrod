@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe SimulationController do
+describe GenerationsController do
 
   describe "GET 'start'" do
     it "returns http success" do

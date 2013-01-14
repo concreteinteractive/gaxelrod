@@ -1,9 +1,13 @@
-class SimulationController < ApplicationController
+class GenerationsController < ApplicationController
+
+  def new
+
+  end
 
   def start
     reset_db
     SimulationWorker.perform_async(options)
-    render json: "started"
+    render json: {msg: "started"}
   end
 
   def next

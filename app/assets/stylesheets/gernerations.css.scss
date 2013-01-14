@@ -1,0 +1,21 @@
+#lattice{
+  border: solid #d3d3d3 1px;
+  //height: 600px;
+  //width: 1000px;
+}
+#running{
+  display: none;
+}
+.row{
+  position:relative;
+
+  .cell {
+    float: left;
+    margin-left: 20px;
+  }
+}
+
+#result_list {
+  padding: 0 10px 0 10px;
+  border: solid #d3d3d3 1px;
+}

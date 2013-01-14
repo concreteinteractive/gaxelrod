@@ -4,8 +4,9 @@ Untitled::Application.routes.draw do
 
   mount Sidekiq::Web, at: "/sidekiq"
 
-  get "simulation/start"
-  get "simulation/next"
+  get "generations/new"
+  get "generations/start"
+  get "generations/next"
 
   # The priority is based upon order of creation:
   # first created -> highest priority.
