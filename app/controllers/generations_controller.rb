@@ -22,9 +22,9 @@ class GenerationsController < ApplicationController
   def options
     ops = {}
     ops[:round_length]    = params[:round_length] || 64
-    ops[:num_players]     = params[:num_players] || 10
+    ops[:num_players]     = params[:num_players] || 20
     ops[:history_length]  = params[:history_length] || 3
-    ops[:max_generations] = params[:max_generations] || 11
+    ops[:max_generations] = params[:max_generations] || 10
     ops
   end
 

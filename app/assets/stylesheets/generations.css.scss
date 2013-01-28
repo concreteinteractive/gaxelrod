@@ -16,6 +16,15 @@
 }
 
 #result_list {
+  position: relative;
   padding: 0 10px 0 10px;
   border: solid #d3d3d3 1px;
+}
+#agent_info {
+  position: absolute;
+  top: -40px;
+  left: 40px;
+  padding: 10px;
+  background-color: white;
+  display: none;
 }
