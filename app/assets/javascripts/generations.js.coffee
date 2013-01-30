@@ -7,15 +7,16 @@ jQuery ->
   cx     = canvas.getContext('2d')
   circles = new Array()
 
-  window.max_generations = 20
-  window.latest_generation = 0
-  window.generations = []
+  max_generations = 9
+  latest_generation = 0
+  generations = []
 
   $('#start').click ->
     $.getJSON 'start', null, (data, status) ->
       $('#start').hide()
       $('#running').show()
       $('#result_list ul').html('')
+      console.log "Start. latest_generation is " + latest_generation
       setTimeout get_next_generation, 300
     false
 
@@ -23,6 +24,7 @@ jQuery ->
     $.getJSON 'next', null, (data, status) ->
       if data
         latest_generation = data.number
+        console.log "got data for generation " + latest_generation
         li  = '<li id="' + data.number + '">'
         li += 'Generation#' + data.number + ', score: ' + data.score + '</li>'
         $('#result_list ul').append(li)
@@ -33,6 +35,8 @@ jQuery ->
           number: data.number,
           score: data.score,
           agents: data.agents
+      else
+        console.log "got no data. latest_generation was: " + latest_generation
       if latest_generation < max_generations
         setTimeout get_next_generation, 300
       else
