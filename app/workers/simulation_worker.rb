@@ -1,5 +1,6 @@
 class SimulationWorker
   include Sidekiq::Worker
+  sidekiq_options :retry => false, :backtrace => true
 
   def perform(options)
     tournament = Tournament.new(self, options)
