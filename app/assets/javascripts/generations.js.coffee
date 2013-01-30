@@ -42,6 +42,8 @@ jQuery ->
   display_generation = (number)->
     gen = find_generation(number)
     show_on_lattice(gen.agents)
+    un_highlight_generations()
+    highlight_generation(number)
 
   find_generation = (number)->
     found = null
@@ -103,3 +105,9 @@ jQuery ->
 
   hide_info = ->
     $('#agent_info').hide()
+
+  highlight_generation = (id)->
+    $('ul#generations li#' + id).css("background-color", "yellow")
+
+  un_highlight_generations = ->
+    $('ul#generations li').css("background-color", "white")
